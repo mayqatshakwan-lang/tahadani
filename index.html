@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>تَحدَاني🐣</title>
+
+<style>
+body{
+  font-family:sans-serif;
+  background:linear-gradient(135deg,#0f172a,#111827);
+  color:white;
+  text-align:center;
+  padding:20px;
+}
+
+.card{
+  background:rgba(255,255,255,0.06);
+  padding:12px;
+  margin:10px auto;
+  border-radius:12px;
+  max-width:500px;
+}
+
+input,button{
+  padding:8px;
+  margin:5px;
+  border-radius:8px;
+  border:none;
+}
+
+button{
+  cursor:pointer;
+}
+
+h1{ color:#22c55e; }
+
+#board{
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🔥 تَحدَاني🐣</h1>
+
+<p id="quote"></p>
+
+<div class="card">
+<h3>إضافة لاعب</h3>
+<input id="playerName" placeholder="اسم اللاعب">
+<button onclick="addPlayer()">إضافة</button>
+</div>
+
+<div class="card">
+<h3>إضافة تحدي</h3>
+<input id="task" placeholder="اكتب التحدي">
+<button onclick="addTask()">إضافة</button>
+</div>
+
+<div class="card">
+<h2 id="board">لا يوجد لاعبين</h2>
+</div>
+
+<div class="card">
+<h3 id="winner">🏆 بطل اليوم: لا يوجد</h3>
+<h3 id="weakest">☠️ أضعف لاعب: لا يوجد</h3>
+
+<button onclick="showWinner()">بطل اليوم</button>
+<button onclick="showWeakest()">كشف الأضعف</button>
+<button onclick="resetDay()">يوم جديد</button>
+</div>
+
+<ul id="list"></ul>
+
+<script>
+
+let players = JSON.parse(localStorage.getItem("players")) || {};
+
+// 💬 عبارات
+let quotes = [
+  "💬 لا تغش! من غشنا فليس منا",
+  "🔥 القمة تُؤخذ لا تُعطى",
+  "⚔️ لا تتوقف",
+  "🏆 أنت أقوى مما تتخيل"
+];
+
+document.getElementById("quote").innerText =
+quotes[Math.floor(Math.random()*quotes.length)];
+
+// 🔄 تحديث
+function updateBoard(){
+  let text = "";
+  let empty = true;
+
+  for(let p in players){
+    text += p + ": " + players[p] + " | ";
+    empty = false;
+  }
+
+  document.getElementById("board").innerText =
+  empty ? "لا يوجد لاعبين" : text;
+
+  localStorage.setItem("players", JSON.stringify(players));
+}
+
+// 👤 إضافة لاعب
+function addPlayer(){
+  let name = document.getElementById("playerName").value;
+
+  if(!name) return;
+
+  players[name] = 0;
+  document.getElementById("playerName").value = "";
+
+  updateBoard();
+}
+
+// 🎯 إضافة تحدي
+function addTask(){
+  let val = document.getElementById("task").value;
+
+  if(!val) return;
+
+  let li = document.createElement("li");
+
+  let buttons = "";
+
+  for(let p in players){
+    buttons += `<button onclick="done(this,'${p}')">${p} أنجز</button>`;
+  }
+
+  li.innerHTML = `${val}<br>${buttons}`;
+
+  document.getElementById("list").appendChild(li);
+
+  document.getElementById("task").value = "";
+}
+
+// ✅ إنجاز
+function done(btn, player){
+  btn.parentElement.style.textDecoration = "line-through";
+  players[player]++;
+  updateBoard();
+}
+
+// 🏆 بطل اليوم
+function showWinner(){
+  let top = "";
+  let max = -1;
+
+  for(let p in players){
+    if(players[p] > max){
+      max = players[p];
+      top = p;
+    }
+  }
+
+  document.getElementById("winner").innerText =
+  top ? "🏆 بطل اليوم: " + top : "لا يوجد";
+}
+
+// ☠️ أضعف لاعب
+function showWeakest(){
+  let weak = "";
+  let min = Infinity;
+
+  for(let p in players){
+    if(players[p] < min){
+      min = players[p];
+      weak = p;
+    }
+  }
+
+  document.getElementById("weakest").innerText =
+  weak ? "☠️ أضعف لاعب: " + weak : "لا يوجد";
+}
+
+// 🔄 يوم جديد
+function resetDay(){
+  for(let p in players){
+    players[p] = 0;
+  }
+
+  updateBoard();
+}
+
+updateBoard();
+
+</script>
+
+</body>
+</html>
